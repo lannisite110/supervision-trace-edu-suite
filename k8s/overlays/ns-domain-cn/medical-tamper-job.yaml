@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: medical-tamper-demo
+  labels:
+    edu.web3/plugin-id: edu.cn.trace.medical
+    edu.web3/compliance: fabric-sandbox
+    edu.web3/namespace: ns-domain-cn
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        edu.web3/plugin-id: edu.cn.trace.medical
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: fabric-runner
+          image: hyperledger/fabric-tools:2.5
+          env:
+            - name: CHAIN_ID
+              value: "fabric-local"
+            - name: FABRIC_CHANNEL
+              value: "edu-cn-trace-sandbox"
+            - name: FABRIC_ORG
+              value: "OrgEduDemo"
+            - name: CHAINCODE_PATH
+              value: "plugins/medical-tamper/chaincode/medical_tamper.go"
+            - name: TASK_TYPE
+              value: "CN_MEDICAL_TAMPER_DEMO"
+          command:
+            - sh
+            - -c
+            - |
+              echo "[fabric-local] channel=${FABRIC_CHANNEL} org=${FABRIC_ORG}"
+              echo "[medical-tamper] chaincode=${CHAINCODE_PATH} task=${TASK_TYPE}"
+              echo "Medical hash tamper detection demo completed (no real EMR)"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"

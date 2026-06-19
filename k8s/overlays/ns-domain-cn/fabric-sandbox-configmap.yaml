@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fabric-cn-trace-sandbox
+  namespace: ns-domain-cn
+  labels:
+    edu.web3/compliance: fabric-sandbox
+    edu.web3/tier: L3
+data:
+  CHAIN_ID: fabric-local
+  FABRIC_CHANNEL: edu-cn-trace-sandbox
+  FABRIC_ORG: OrgEduDemo
+  FABRIC_MSP_ID: OrgEduDemoMSP
+  FABRIC_PEER_ENDPOINT: peer0.orgedudemo.example.com:7051
+  FABRIC_ORDERER_ENDPOINT: orderer.example.com:7050
+  COMPLIANCE_NOTE: fictional-data-only; no real regulatory or payment integration

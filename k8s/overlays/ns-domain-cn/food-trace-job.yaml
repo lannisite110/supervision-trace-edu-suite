@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: food-trace-sim
+  labels:
+    edu.web3/plugin-id: edu.cn.trace.food
+    edu.web3/compliance: fabric-sandbox
+    edu.web3/namespace: ns-domain-cn
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        edu.web3/plugin-id: edu.cn.trace.food
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: fabric-runner
+          image: hyperledger/fabric-tools:2.5
+          env:
+            - name: CHAIN_ID
+              value: "fabric-local"
+            - name: FABRIC_CHANNEL
+              value: "edu-cn-trace-sandbox"
+            - name: FABRIC_ORG
+              value: "OrgEduDemo"
+            - name: CHAINCODE_PATH
+              value: "plugins/food-trace/chaincode/food_trace.go"
+            - name: TASK_TYPE
+              value: "CN_FOOD_TRACE_SIM"
+          command:
+            - sh
+            - -c
+            - |
+              echo "[fabric-local] channel=${FABRIC_CHANNEL} org=${FABRIC_ORG}"
+              echo "[food-trace] chaincode=${CHAINCODE_PATH} task=${TASK_TYPE}"
+              echo "Fabric sandbox simulation completed (fictional data only)"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"

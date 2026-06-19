@@ -1,0 +1,26 @@
+apiVersion: edu.web3/v1
+kind: PluginPackage
+metadata:
+  id: edu.cn.trace.charity
+  name: Charity Ledger Demo
+  version: 0.1.0
+  repo: supervision-trace-edu-suite
+  compliance_tier: cn_domain
+
+spec:
+  coreVersion: ">=0.1.0 <0.2.0"
+  taskTypes:
+    - CN_CHARITY_LEDGER_DEMO
+  namespaces:
+    - ns-domain-cn
+  allowedChainIds:
+    - fabric-local
+  frontend:
+    routePrefix: /labs/edu.cn.trace.charity
+    entry: plugins/charity-ledger/frontend/plugin.ts
+  rules:
+    entry: plugins.rules.charity_ledger:evaluate
+  k8s:
+    jobTemplate: k8s/overlays/ns-domain-cn/charity-ledger-job.yaml
+  docs:
+    - docs/tutorials/charity-ledger-intro.md
