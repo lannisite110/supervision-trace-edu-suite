@@ -4,9 +4,11 @@
 
 # Supervision Trace Education Suite
 
-**v0.2.0** · 国内民生溯源**教学 Demo**（子库2）：食品 / 医疗存证 / 慈善流水。
+**v0.3.0** · 国内民生溯源**教学 Demo**（子库2）：食品 / 医疗存证 / 慈善流水。
 
-依赖 [web3-edu-platform-core](../web3-edu-platform-core) **≥ v0.3.0**。
+- [学习路径](docs/LEARNING_PATH.md) · [快速部署](docs/QUICK_DEPLOY.md)
+
+依赖 [web3-edu-platform-core](https://github.com/lannisite110/web3-edu-platform-core) **v1.0.0**。
 
 | 插件 | plugin_id |
 |------|-----------|
