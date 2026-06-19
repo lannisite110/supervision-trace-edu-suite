@@ -43,3 +43,7 @@ curl -X POST http://127.0.0.1:8080/api/v1/labs/edu.cn.trace.charity/simulate \
   -H 'Content-Type: application/json' \
   -d '{"params":{"campaign_id":"DEMO-CAMPAIGN-001"},"allowed_chain_ids":["fabric-local"]}'
 ```
+
+---
+
+> **合规声明**: Fabric 沙箱 `fabric-local` only；全部虚构数据；不对接真实监管、支付或 EMR 系统；禁止主网部署。

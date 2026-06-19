@@ -69,3 +69,23 @@ for m in ../supervision-trace-edu-suite/plugins/*/plugin.manifest.yaml; do
   make validate-plugin MANIFEST="$m"
 done
 ```
+
+---
+
+## 7. v0.2.0 发布
+
+| 项 | 内容 |
+|----|------|
+| 版本 | **0.2.0** |
+| 主库依赖 | `web3-edu-platform-core` **≥ v0.3.0** |
+| manifest | 3 个插件 `metadata.version: 0.2.0`，`spec.coreVersion: ">=0.3.0 <0.4.0"` |
+| Fabric 沙箱 | `k8s/overlays/ns-domain-cn/fabric-sandbox-configmap.yaml` 共享配置 |
+| 联调 | `make smoke`（`scripts/joint-debug-smoke.sh`） |
+| 文档 | `CHANGELOG.md`、`docs/INTEGRATION.md`、教程合规页脚 |
+
+验收：
+
+```bash
+make validate && make smoke
+git tag v0.2.0
+```

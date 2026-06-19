@@ -1,8 +1,10 @@
 # 联合调试指南 · supervision-trace-edu-suite
 
+> **版本**: v0.2.0 · 依赖主库 **≥ v0.3.0**
+
 ## 前置条件
 
-- 主库 `web3-edu-platform-core` ≥ v0.1.0
+- 主库 `web3-edu-platform-core` **≥ v0.3.0**
 - Go 1.22+、Python 3.12+、Node 20+
 
 ## 一键冒烟（推荐）
@@ -38,7 +40,7 @@ make run-gateway       # :8080
 cd frontend-web && npm run dev   # :5173
 ```
 
-左侧导航「国内领域」下可见 3 个 Lab（v0.1 使用通用 `LabView`）。
+左侧导航「国内领域」下可见 3 个 Lab（v0.2 可加载子库专属 Vue 面板）。
 
 ### 3b. 子库专用面板预览（推荐）
 
@@ -65,7 +67,7 @@ curl -X POST http://127.0.0.1:8080/api/v1/labs/edu.cn.trace.food/simulate \
 
 | 文件 | 说明 |
 |------|------|
-| `k8s/overlays/ns-domain-cn/fabric-sandbox-configmap.yaml` | Fabric 沙箱共享配置 |
+| `k8s/overlays/ns-domain-cn/fabric-sandbox-configmap.yaml` | Fabric 沙箱共享配置（v0.2.0） |
 | `k8s/overlays/ns-domain-cn/*-job.yaml` | 各插件 Job 模板 |
 
 ## 合规提醒

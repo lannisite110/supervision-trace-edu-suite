@@ -4,7 +4,9 @@
 
 # Supervision Trace Education Suite
 
-国内民生溯源**教学 Demo**（子库2）：食品 / 医疗存证 / 慈善流水。
+**v0.2.0** · 国内民生溯源**教学 Demo**（子库2）：食品 / 医疗存证 / 慈善流水。
+
+依赖 [web3-edu-platform-core](../web3-edu-platform-core) **≥ v0.3.0**。
 
 | 插件 | plugin_id |
 |------|-----------|
@@ -14,6 +16,7 @@
 
 - Fabric 沙箱 only（`fabric-local`）
 - 虚构数据 only
+- 变更记录：[CHANGELOG.md](CHANGELOG.md)
 - 任务书：[TASK.md](TASK.md)
 - 联合调试：[docs/INTEGRATION.md](docs/INTEGRATION.md)
 
