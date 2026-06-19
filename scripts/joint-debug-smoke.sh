@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Agent-2 联合调试冒烟 — 3 个国内民生溯源插件
+# supervision-trace-edu-suite 联合调试冒烟 — 3 个国内民生溯源插件
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -124,4 +124,4 @@ CODE=$(curl -s -o /dev/null -w '%{http_code}' -X POST \
   -d '{"params":{"target_network":"mainnet"}}')
 test "$CODE" = "403"
 
-echo "==> Agent-2 joint-debug smoke PASSED"
+echo "==> supervision-trace-edu-suite joint-debug smoke PASSED"

@@ -14,7 +14,7 @@
 
 - Fabric 沙箱 only（`fabric-local`）
 - 虚构数据 only
-- 任务书：[AGENT_TASK.md](AGENT_TASK.md)
+- 任务书：[TASK.md](TASK.md)
 - 联合调试：[docs/INTEGRATION.md](docs/INTEGRATION.md)
 
 ## 快速开始

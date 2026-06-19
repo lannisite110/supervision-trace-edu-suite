@@ -1,4 +1,4 @@
-# Agent-2 任务书 · supervision-trace-edu-suite
+# 任务书 · supervision-trace-edu-suite
 
 > **仓库**: `supervision-trace-edu-suite`  
 > **compliance_tier**: `cn_domain`  
