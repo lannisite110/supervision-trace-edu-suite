@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useLabI18n } from '@/composables/useLabI18n'
 import { useLabSimulate } from '../../frontend/shared/useLabSimulate'
 import { parseHints } from '../../frontend/shared/parseHints'
+
+const { t } = useLabI18n('edu.cn.trace.charity')
 
 const campaignId = ref('DEMO-CAMPAIGN-001')
 const { loading, error, result, taskStatus, taskReport, runSimulate, parseEvaluation } =
@@ -10,26 +13,26 @@ const { loading, error, result, taskStatus, taskReport, runSimulate, parseEvalua
 const evaluation = computed(() => parseEvaluation(result.value?.evaluation))
 const hints = computed(() => parseHints(evaluation.value?.audit_hints))
 
-const demoEntries = [
-  { id: 'DEMO-ENTRY-001', donor: '虚构捐赠者A', amount: 100, hash: 'sha256:donation-demo-001', time: '2026-06-01 12:00' },
-  { id: 'DEMO-ENTRY-002', donor: '虚构捐赠者B', amount: 50, hash: 'sha256:donation-demo-002', time: '2026-06-02 15:30' },
-]
+const demoEntries = computed(() => [
+  { id: 'DEMO-ENTRY-001', donor: t('donor_a'), amount: 100, hash: 'sha256:donation-demo-001', time: '2026-06-01 12:00' },
+  { id: 'DEMO-ENTRY-002', donor: t('donor_b'), amount: 50, hash: 'sha256:donation-demo-002', time: '2026-06-02 15:30' },
+])
 
-const fieldPolicy = [
-  { field: '捐赠金额', visibility: '公开', onChain: '¥100', note: '汇总进活动账本' },
-  { field: '捐赠时间', visibility: '公开', onChain: '2026-06-01T12:00:00Z', note: '审计轨迹' },
-  { field: '捐赠者代号', visibility: '公开', onChain: '虚构捐赠者A', note: '非真实 PII' },
-  { field: '捐赠者手机号', visibility: '隐私', onChain: 'sha256:redacted…demo', note: '仅 hash 上链' },
-  { field: '支付渠道', visibility: '禁止', onChain: '—', note: '不对接微信/支付宝' },
-]
+const fieldPolicy = computed(() => [
+  { field: t('policy_amount'), visibility: t('public'), cssClass: '公开', onChain: '¥100', note: '汇总进活动账本' },
+  { field: t('policy_time'), visibility: t('public'), cssClass: '公开', onChain: '2026-06-01T12:00:00Z', note: '审计轨迹' },
+  { field: t('policy_donor'), visibility: t('public'), cssClass: '公开', onChain: t('donor_a'), note: '非真实 PII' },
+  { field: t('policy_phone'), visibility: t('private'), cssClass: '隐私', onChain: 'sha256:redacted…demo', note: '仅 hash 上链' },
+  { field: t('policy_channel'), visibility: t('forbidden'), cssClass: '禁止', onChain: '—', note: '不对接微信/支付宝' },
+])
 
 const ledgerHash = 'ledger-merkle-root-demo-9b2c'
-const totalAmount = demoEntries.reduce((s, e) => s + e.amount, 0)
+const totalAmount = computed(() => demoEntries.value.reduce((s, e) => s + e.amount, 0))
 
 function submit() {
   runSimulate(
     '模拟募捐流水哈希上链',
-    { campaign_id: campaignId.value, entry_count: demoEntries.length, ledger_hash: ledgerHash },
+    { campaign_id: campaignId.value, entry_count: demoEntries.value.length, ledger_hash: ledgerHash },
     { taskType: 'CN_CHARITY_LEDGER_DEMO' },
   )
 }
@@ -40,40 +43,40 @@ function submit() {
     <header class="lab-header">
       <img src="/assets/icon.png" alt="" width="32" height="32" />
       <div>
-        <h1>慈善流水存证 Demo</h1>
-        <p class="muted">模拟募捐流水哈希上链 · 不对接官方支付渠道</p>
+        <h1>{{ t('title') }}</h1>
+        <p class="muted">{{ t('subtitle') }}</p>
       </div>
     </header>
 
     <div v-if="evaluation" class="eval-card">
-      <h2>规则评估</h2>
-      <p class="ok">✓ 合规通过 · {{ evaluation.recommended_language }}</p>
-      <p v-if="hints.campaign_id"><strong>活动:</strong> {{ hints.campaign_id }}</p>
-      <p v-if="hints.entry_count"><strong>流水笔数:</strong> {{ hints.entry_count }}</p>
-      <p v-if="hints.channel"><strong>通道:</strong> {{ hints.channel }} · {{ hints.org }}</p>
+      <h2>{{ t('ruleEval') }}</h2>
+      <p class="ok">{{ t('compliancePass') }} · {{ evaluation.recommended_language }}</p>
+      <p v-if="hints.campaign_id"><strong>{{ t('campaign') }}:</strong> {{ hints.campaign_id }}</p>
+      <p v-if="hints.entry_count"><strong>{{ t('entryCount') }}:</strong> {{ hints.entry_count }}</p>
+      <p v-if="hints.channel"><strong>{{ t('channel') }}:</strong> {{ hints.channel }} · {{ hints.org }}</p>
     </div>
 
     <div class="lab-grid">
       <div class="card">
-        <h2>募捐活动</h2>
+        <h2>{{ t('campaignSection') }}</h2>
         <label>
-          活动 ID
+          {{ t('campaignId') }}
           <input v-model="campaignId" />
         </label>
-        <p><strong>流水汇总哈希:</strong> <code>{{ ledgerHash }}</code></p>
-        <p><strong>累计金额（虚构）:</strong> ¥{{ totalAmount }}</p>
+        <p><strong>{{ t('ledgerHash') }}:</strong> <code>{{ ledgerHash }}</code></p>
+        <p><strong>{{ t('totalAmount') }}:</strong> ¥{{ totalAmount }}</p>
         <button :disabled="loading" @click="submit">
-          {{ loading ? '提交中…' : '提交存证实验' }}
+          {{ loading ? t('submitting') : t('submitLedger') }}
         </button>
-        <p v-if="taskStatus" class="status">任务状态: {{ taskStatus }}</p>
+        <p v-if="taskStatus" class="status">{{ t('taskStatus') }}: {{ taskStatus }}</p>
         <p v-if="error" class="error">{{ error }}</p>
       </div>
 
       <div class="card">
-        <h2>捐赠流水</h2>
+        <h2>{{ t('donations') }}</h2>
         <table>
           <thead>
-            <tr><th>捐赠者</th><th>金额</th><th>哈希</th><th>时间</th></tr>
+            <tr><th>{{ t('donor') }}</th><th>{{ t('amount') }}</th><th>{{ t('hash') }}</th><th>{{ t('time') }}</th></tr>
           </thead>
           <tbody>
             <tr v-for="e in demoEntries" :key="e.id">
@@ -87,13 +90,13 @@ function submit() {
       </div>
 
       <div class="card">
-        <h2>公开 vs 隐私字段</h2>
+        <h2>{{ t('fieldPolicy') }}</h2>
         <table class="policy-table">
           <thead>
-            <tr><th>字段</th><th>策略</th><th>链上示例</th></tr>
+            <tr><th>{{ t('field') }}</th><th>{{ t('visibility') }}</th><th>{{ t('onChainCol') }}</th></tr>
           </thead>
           <tbody>
-            <tr v-for="row in fieldPolicy" :key="row.field" :class="row.visibility">
+            <tr v-for="row in fieldPolicy" :key="row.field" :class="row.cssClass">
               <td>{{ row.field }}</td>
               <td><span class="badge">{{ row.visibility }}</span></td>
               <td><code>{{ row.onChain }}</code></td>

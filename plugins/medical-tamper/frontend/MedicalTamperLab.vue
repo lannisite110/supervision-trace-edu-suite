@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useLabI18n } from '@/composables/useLabI18n'
 import { useLabSimulate } from '../../frontend/shared/useLabSimulate'
 import { parseHints, hintBool } from '../../frontend/shared/parseHints'
+
+const { t } = useLabI18n('edu.cn.trace.medical')
 
 const recordId = ref('DEMO-RECORD-001')
 const submittedHash = ref('sha256:demo-medical-hash-abc123')
@@ -15,11 +18,11 @@ const ruleTampered = computed(() => hintBool(hints.value, 'tamper_detected'))
 const storedHash = 'sha256:demo-medical-hash-abc123'
 const isTampered = computed(() => submittedHash.value !== storedHash)
 
-const hashChain = [
-  { version: 'v1', hash: 'sha256:demo-medical-hash-abc123', action: '初始病历存证', time: '2026-05-01 09:00' },
-  { version: 'v2', hash: 'sha256:demo-medical-hash-def456', action: '合法追加备注（教学）', time: '2026-05-15 14:20' },
-  { version: '链上当前', hash: storedHash, action: '有效存证版本', time: '2026-06-01 08:00' },
-]
+const hashChain = computed(() => [
+  { version: 'v1', hash: 'sha256:demo-medical-hash-abc123', action: t('action_init'), time: '2026-05-01 09:00' },
+  { version: 'v2', hash: 'sha256:demo-medical-hash-def456', action: t('action_append'), time: '2026-05-15 14:20' },
+  { version: t('chain_current'), hash: storedHash, action: t('action_valid'), time: '2026-06-01 08:00' },
+])
 
 const fabricSandbox = {
   chainId: 'fabric-local',
@@ -41,59 +44,59 @@ function submit() {
     <header class="lab-header">
       <img src="/assets/icon.png" alt="" width="32" height="32" />
       <div>
-        <h1>医疗防篡改存证 Demo</h1>
-        <p class="muted">病历哈希存证数据结构演示 · 不对接真实 EMR/HIS</p>
+        <h1>{{ t('title') }}</h1>
+        <p class="muted">{{ t('subtitle') }}</p>
       </div>
     </header>
 
     <div v-if="evaluation" class="eval-card">
-      <h2>规则评估</h2>
-      <p class="ok">✓ 合规通过 · {{ evaluation.recommended_language }}</p>
-      <p v-if="hints.record_id"><strong>记录:</strong> {{ hints.record_id }}</p>
+      <h2>{{ t('ruleEval') }}</h2>
+      <p class="ok">{{ t('compliancePass') }} · {{ evaluation.recommended_language }}</p>
+      <p v-if="hints.record_id"><strong>{{ t('record') }}:</strong> {{ hints.record_id }}</p>
       <p v-if="evaluation">
-        <strong>规则篡改检测:</strong>
-        {{ ruleTampered ? '检测到不一致' : '哈希一致' }}
+        <strong>{{ t('ruleTamper') }}:</strong>
+        {{ ruleTampered ? t('tamperDetected') : t('hashConsistent') }}
       </p>
     </div>
 
     <div class="lab-grid">
       <div class="card">
-        <h2>存证记录</h2>
+        <h2>{{ t('recordSection') }}</h2>
         <label>
-          记录 ID
+          {{ t('recordId') }}
           <input v-model="recordId" />
         </label>
-        <p><strong>链上哈希:</strong> <code>{{ storedHash }}</code></p>
+        <p><strong>{{ t('onChainHash') }}:</strong> <code>{{ storedHash }}</code></p>
         <label>
-          待校验哈希
+          {{ t('verifyHash') }}
           <input v-model="submittedHash" />
         </label>
         <button :disabled="loading" @click="submit">
-          {{ loading ? '检测中…' : '提交篡改检测实验' }}
+          {{ loading ? t('detecting') : t('submitTamper') }}
         </button>
-        <p v-if="taskStatus" class="status">任务状态: {{ taskStatus }}</p>
+        <p v-if="taskStatus" class="status">{{ t('taskStatus') }}: {{ taskStatus }}</p>
         <p v-if="error" class="error">{{ error }}</p>
       </div>
 
       <div class="card" :class="{ tampered: isTampered }">
-        <h2>检测结果</h2>
-        <p v-if="!isTampered" class="ok">✓ 哈希一致，未检测到篡改</p>
-        <p v-else class="warn">⚠ 哈希不一致，触发异常修改检测算法（教学演示）</p>
-        <p class="muted">等保概念教学参考 — 非等保认证宣称</p>
+        <h2>{{ t('resultSection') }}</h2>
+        <p v-if="!isTampered" class="ok">{{ t('hashMatch') }}</p>
+        <p v-else class="warn">{{ t('hashMismatch') }}</p>
+        <p class="muted">{{ t('complianceNote') }}</p>
         <div class="compare">
           <div>
-            <small>链上</small>
+            <small>{{ t('onChain') }}</small>
             <code>{{ storedHash.slice(0, 24) }}…</code>
           </div>
           <div>
-            <small>提交</small>
+            <small>{{ t('submitted') }}</small>
             <code>{{ submittedHash.slice(0, 24) }}…</code>
           </div>
         </div>
       </div>
 
       <div class="card">
-        <h2>版本哈希链</h2>
+        <h2>{{ t('hashChain') }}</h2>
         <ol class="hash-chain">
           <li v-for="item in hashChain" :key="item.version">
             <strong>{{ item.version }}</strong> — {{ item.action }}

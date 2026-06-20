@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useLabI18n } from '@/composables/useLabI18n'
 import { useLabSimulate } from '../../frontend/shared/useLabSimulate'
 import { parseHints } from '../../frontend/shared/parseHints'
 import LabAssistDrawer from '@/components/LabAssistDrawer.vue'
+
+const { t } = useLabI18n('edu.cn.trace.food')
 
 const batchId = ref('DEMO-BATCH-001')
 const { loading, error, result, taskStatus, taskReport, runSimulate, parseEvaluation } =
@@ -16,11 +19,11 @@ const assistParams = computed(() => ({
   product_name: '有机蔬菜礼盒',
 }))
 
-const demoTrace = [
-  { stage: '采收', origin: '虚构农场A', hash: 'a3f2c1…demo', time: '2026-06-01 08:00' },
-  { stage: '冷链运输', origin: '虚构冷链中心', hash: 'b4e3d2…demo', time: '2026-06-02 14:30' },
-  { stage: '上架销售', origin: '虚构零售门店', hash: 'c5f4e3…demo', time: '2026-06-03 09:15' },
-]
+const demoTrace = computed(() => [
+  { stage: t('stage_harvest'), origin: t('origin_a'), hash: 'a3f2c1…demo', time: '2026-06-01 08:00' },
+  { stage: t('stage_cold'), origin: t('origin_cold'), hash: 'b4e3d2…demo', time: '2026-06-02 14:30' },
+  { stage: t('stage_retail'), origin: t('origin_store'), hash: 'c5f4e3…demo', time: '2026-06-03 09:15' },
+])
 
 const fabricSandbox = {
   chainId: 'fabric-local',
@@ -29,11 +32,11 @@ const fabricSandbox = {
   chaincode: 'plugins/food-trace/chaincode/food_trace.go',
 }
 
-const merkleProof = {
+const merkleProof = computed(() => ({
   rootHash: 'merkle-root-demo-7f3a',
-  leafHashes: demoTrace.map((s) => s.hash),
-  proofPath: ['hash→parent→root (教学简化)'],
-}
+  leafHashes: demoTrace.value.map((s) => s.hash),
+  proofPath: [t('proofPath')],
+}))
 
 function submit() {
   runSimulate(
@@ -49,34 +52,34 @@ function submit() {
     <header class="lab-header">
       <img src="/assets/icon.png" alt="" width="32" height="32" />
       <div>
-        <h1>食品溯源教学 Demo</h1>
-        <p class="muted">虚构数据 · Fabric 沙箱 · 批次/Merkle 证明演示</p>
+        <h1>{{ t('title') }}</h1>
+        <p class="muted">{{ t('subtitle') }}</p>
       </div>
     </header>
 
     <div v-if="evaluation" class="eval-card">
-      <h2>规则评估</h2>
-      <p class="ok">✓ 合规通过 · {{ evaluation.recommended_language }} · {{ evaluation.recommended_template }}</p>
-      <p v-if="hints.channel"><strong>通道:</strong> {{ hints.channel }} · <strong>组织:</strong> {{ hints.org }}</p>
-      <p v-if="hints.batch_id"><strong>批次:</strong> {{ hints.batch_id }}</p>
+      <h2>{{ t('ruleEval') }}</h2>
+      <p class="ok">{{ t('evalDetail', { lang: evaluation.recommended_language, template: evaluation.recommended_template }) }}</p>
+      <p v-if="hints.channel"><strong>{{ t('channel') }}:</strong> {{ hints.channel }} · <strong>{{ t('org') }}:</strong> {{ hints.org }}</p>
+      <p v-if="hints.batch_id"><strong>{{ t('batch') }}:</strong> {{ hints.batch_id }}</p>
     </div>
 
     <div class="lab-grid">
       <div class="card">
-        <h2>批次信息</h2>
+        <h2>{{ t('batchInfo') }}</h2>
         <label>
-          批次 ID
+          {{ t('batchId') }}
           <input v-model="batchId" />
         </label>
         <button :disabled="loading" @click="submit">
-          {{ loading ? '提交中…' : '提交仿真实验' }}
+          {{ loading ? t('submitting') : t('submit') }}
         </button>
-        <p v-if="taskStatus" class="status">任务状态: {{ taskStatus }}</p>
+        <p v-if="taskStatus" class="status">{{ t('taskStatus') }}: {{ taskStatus }}</p>
         <p v-if="error" class="error">{{ error }}</p>
       </div>
 
       <div class="card">
-        <h2>溯源链路</h2>
+        <h2>{{ t('traceChain') }}</h2>
         <ol class="trace-timeline">
           <li v-for="step in demoTrace" :key="step.stage">
             <strong>{{ step.stage }}</strong> — {{ step.origin }}
@@ -87,7 +90,7 @@ function submit() {
       </div>
 
       <div class="card">
-        <h2>Merkle 证明</h2>
+        <h2>{{ t('merkleProof') }}</h2>
         <p><strong>Root:</strong> <code>{{ merkleProof.rootHash }}</code></p>
         <ul>
           <li v-for="h in merkleProof.leafHashes" :key="h"><code>{{ h }}</code></li>
@@ -95,10 +98,10 @@ function submit() {
         <p class="muted">{{ merkleProof.proofPath.join(' → ') }}</p>
       </div>
       <div class="card fabric-card">
-        <h2>Fabric 沙箱</h2>
+        <h2>{{ t('fabricSandbox') }}</h2>
         <p><strong>chainId:</strong> <code>{{ fabricSandbox.chainId }}</code></p>
-        <p><strong>通道:</strong> <code>{{ fabricSandbox.channel }}</code></p>
-        <p><strong>组织:</strong> {{ fabricSandbox.org }}</p>
+        <p><strong>{{ t('channel') }}:</strong> <code>{{ fabricSandbox.channel }}</code></p>
+        <p><strong>{{ t('org') }}:</strong> {{ fabricSandbox.org }}</p>
         <p class="muted"><code>{{ fabricSandbox.chaincode }}</code></p>
       </div>
     </div>
