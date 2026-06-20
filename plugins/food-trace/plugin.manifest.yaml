@@ -3,7 +3,7 @@ kind: PluginPackage
 metadata:
   id: edu.cn.trace.food
   name: Food Trace Simulation Lab
-  version: 0.3.0
+  version: 0.4.0
   repo: supervision-trace-edu-suite
   compliance_tier: cn_domain
 

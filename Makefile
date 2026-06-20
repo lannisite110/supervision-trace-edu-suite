@@ -1,4 +1,4 @@
-.PHONY: validate compliance register smoke dev-frontend
+.PHONY: validate compliance register smoke dev-frontend phase0-verify
 
 CORE ?= ../web3-edu-platform-core
 PLUGINS_DIR ?= ..
@@ -14,6 +14,9 @@ compliance:
 
 register:
 	cd "$(CORE)" && make register-plugins PLUGINS_DIR="$(PLUGINS_DIR)"
+
+phase0-verify:
+	bash scripts/trace-phase0-verify.sh
 
 smoke:
 	bash scripts/joint-debug-smoke.sh

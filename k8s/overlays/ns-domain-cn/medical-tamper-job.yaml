@@ -30,11 +30,17 @@ spec:
               value: "CN_MEDICAL_TAMPER_DEMO"
           command:
             - sh
-            - -c
+            - -ec
             - |
-              echo "[fabric-local] channel=${FABRIC_CHANNEL} org=${FABRIC_ORG}"
-              echo "[medical-tamper] chaincode=${CHAINCODE_PATH} task=${TASK_TYPE}"
-              echo "Medical hash tamper detection demo completed (no real EMR)"
+              echo "==> ${TASK_TYPE} fabric-local toolchain gate"
+              peer version | head -1
+              configtxgen -version 2>/dev/null | head -1 || true
+              case "${CHAINCODE_PATH}" in
+                plugins/*/chaincode/*.go) echo "chaincode path OK: ${CHAINCODE_PATH}" ;;
+                *) echo "invalid chaincode path: ${CHAINCODE_PATH}"; exit 1 ;;
+              esac
+              echo "channel=${FABRIC_CHANNEL} org=${FABRIC_ORG}"
+              echo "fabric-sandbox gate OK — no real EMR, hash tamper demo only"
           resources:
             requests:
               memory: "128Mi"

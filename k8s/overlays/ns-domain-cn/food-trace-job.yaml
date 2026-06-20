@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: food-trace-sim
+  name: food-trace-demo
   labels:
     edu.web3/plugin-id: edu.cn.trace.food
     edu.web3/compliance: fabric-sandbox
@@ -30,11 +30,17 @@ spec:
               value: "CN_FOOD_TRACE_SIM"
           command:
             - sh
-            - -c
+            - -ec
             - |
-              echo "[fabric-local] channel=${FABRIC_CHANNEL} org=${FABRIC_ORG}"
-              echo "[food-trace] chaincode=${CHAINCODE_PATH} task=${TASK_TYPE}"
-              echo "Fabric sandbox simulation completed (fictional data only)"
+              echo "==> ${TASK_TYPE} fabric-local toolchain gate"
+              peer version | head -1
+              configtxgen -version 2>/dev/null | head -1 || true
+              case "${CHAINCODE_PATH}" in
+                plugins/*/chaincode/*.go) echo "chaincode path OK: ${CHAINCODE_PATH}" ;;
+                *) echo "invalid chaincode path: ${CHAINCODE_PATH}"; exit 1 ;;
+              esac
+              echo "channel=${FABRIC_CHANNEL} org=${FABRIC_ORG}"
+              echo "fabric-sandbox gate OK — fictional food trace data only"
           resources:
             requests:
               memory: "128Mi"

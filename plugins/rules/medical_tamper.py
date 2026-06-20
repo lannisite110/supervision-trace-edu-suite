@@ -11,6 +11,9 @@ def evaluate(inp: RuleInput) -> RuleOutput:
         return blocked
 
     record_id = inp.params.get("record_id", "DEMO-RECORD-001")
+    stored_hash = "sha256:demo-medical-hash-abc123"
+    submitted = str(inp.params.get("submitted_hash", stored_hash))
+    tampered = submitted != stored_hash
     text = f"{inp.user_prompt} {inp.params.get('scenario', '')}".lower()
     if any(kw in text for kw in ("等保三级", "三级等保", "生产认证")):
         return RuleOutput(
@@ -26,6 +29,9 @@ def evaluate(inp: RuleInput) -> RuleOutput:
         recommended_language="go",
         audit_hints=fabric_hints([
             f"record_id={record_id}",
+            f"stored_hash={stored_hash}",
+            f"submitted_hash={submitted}",
+            f"tamper_detected={'true' if tampered else 'false'}",
             "hash_tamper_detection_demo",
             "no_real_emr_integration",
             "CN_MEDICAL_TAMPER_DEMO",

@@ -1,15 +1,27 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useLabSimulate } from '../../frontend/shared/useLabSimulate'
+import { parseHints } from '../../frontend/shared/parseHints'
 
 const batchId = ref('DEMO-BATCH-001')
-const { loading, error, result, taskStatus, taskReport, runSimulate } = useLabSimulate('edu.cn.trace.food')
+const { loading, error, result, taskStatus, taskReport, runSimulate, parseEvaluation } =
+  useLabSimulate('edu.cn.trace.food')
+
+const evaluation = computed(() => parseEvaluation(result.value?.evaluation))
+const hints = computed(() => parseHints(evaluation.value?.audit_hints))
 
 const demoTrace = [
   { stage: '采收', origin: '虚构农场A', hash: 'a3f2c1…demo', time: '2026-06-01 08:00' },
   { stage: '冷链运输', origin: '虚构冷链中心', hash: 'b4e3d2…demo', time: '2026-06-02 14:30' },
   { stage: '上架销售', origin: '虚构零售门店', hash: 'c5f4e3…demo', time: '2026-06-03 09:15' },
 ]
+
+const fabricSandbox = {
+  chainId: 'fabric-local',
+  channel: 'edu-cn-trace-sandbox',
+  org: 'OrgEduDemo',
+  chaincode: 'plugins/food-trace/chaincode/food_trace.go',
+}
 
 const merkleProof = {
   rootHash: 'merkle-root-demo-7f3a',
@@ -18,10 +30,11 @@ const merkleProof = {
 }
 
 function submit() {
-  runSimulate('食品批次溯源教学演示', {
-    batch_id: batchId.value,
-    product_name: '有机蔬菜礼盒',
-  })
+  runSimulate(
+    '食品批次溯源教学演示',
+    { batch_id: batchId.value, product_name: '有机蔬菜礼盒' },
+    { taskType: 'CN_FOOD_TRACE_SIM' },
+  )
 }
 </script>
 
@@ -34,6 +47,13 @@ function submit() {
         <p class="muted">虚构数据 · Fabric 沙箱 · 批次/Merkle 证明演示</p>
       </div>
     </header>
+
+    <div v-if="evaluation" class="eval-card">
+      <h2>规则评估</h2>
+      <p class="ok">✓ 合规通过 · {{ evaluation.recommended_language }} · {{ evaluation.recommended_template }}</p>
+      <p v-if="hints.channel"><strong>通道:</strong> {{ hints.channel }} · <strong>组织:</strong> {{ hints.org }}</p>
+      <p v-if="hints.batch_id"><strong>批次:</strong> {{ hints.batch_id }}</p>
+    </div>
 
     <div class="lab-grid">
       <div class="card">
@@ -67,6 +87,12 @@ function submit() {
           <li v-for="h in merkleProof.leafHashes" :key="h"><code>{{ h }}</code></li>
         </ul>
         <p class="muted">{{ merkleProof.proofPath.join(' → ') }}</p>
+      <div class="card fabric-card">
+        <h2>Fabric 沙箱</h2>
+        <p><strong>chainId:</strong> <code>{{ fabricSandbox.chainId }}</code></p>
+        <p><strong>通道:</strong> <code>{{ fabricSandbox.channel }}</code></p>
+        <p><strong>组织:</strong> {{ fabricSandbox.org }}</p>
+        <p class="muted"><code>{{ fabricSandbox.chaincode }}</code></p>
       </div>
     </div>
 
@@ -77,9 +103,13 @@ function submit() {
 
 <style scoped>
 .lab-panel { padding: 1rem; }
+.eval-card { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+.eval-card h2 { margin: 0 0 0.5rem; font-size: 1rem; }
+.eval-card .ok { color: #15803d; margin: 0 0 0.5rem; }
 .lab-header { display: flex; gap: 0.75rem; align-items: center; margin-bottom: 1rem; }
 .lab-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
 .card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; }
+.card.fabric-card { background: #eff6ff; border-color: #bfdbfe; }
 .muted { color: #64748b; font-size: 0.875rem; }
 .status { color: #2563eb; font-size: 0.875rem; margin-top: 0.5rem; }
 .hash, code { font-family: monospace; font-size: 0.8rem; color: #0f766e; }

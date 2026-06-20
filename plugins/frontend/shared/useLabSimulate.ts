@@ -1,12 +1,16 @@
-import { ref } from 'vue'
+import { onUnmounted, ref } from 'vue'
+
+export interface SimulateEvaluation {
+  compliance_passed?: boolean
+  recommended_template?: string
+  recommended_language?: string
+  rejection_reason?: string
+  audit_hints?: string[]
+}
 
 export interface SimulateResult {
   plugin_id?: string
-  evaluation?: {
-    compliance_passed?: boolean
-    recommended_template?: string
-    audit_hints?: string[]
-  }
+  evaluation?: SimulateEvaluation | string
   task?: {
     id?: string
     namespace?: string
@@ -15,53 +19,89 @@ export interface SimulateResult {
   }
 }
 
-export function useLabSimulate(pluginId: string, defaultChainIds: (number | string)[] = ['fabric-local']) {
+function parseEvaluation(raw: SimulateEvaluation | string | undefined): SimulateEvaluation | null {
+  if (!raw) return null
+  if (typeof raw === 'string') {
+    try {
+      return JSON.parse(raw) as SimulateEvaluation
+    } catch {
+      return null
+    }
+  }
+  return raw
+}
+
+export function useLabSimulate(
+  pluginId: string,
+  defaultChainIds: (number | string)[] = ['fabric-local'],
+  pollIntervalMs = 1500,
+) {
   const loading = ref(false)
   const error = ref('')
   const result = ref<SimulateResult | null>(null)
   const taskStatus = ref('')
   const taskReport = ref<Record<string, unknown> | null>(null)
+  let pollTimer: ReturnType<typeof setInterval> | null = null
 
-  async function pollTask(taskId: string, maxAttempts = 10) {
-    taskStatus.value = 'pending'
-    for (let i = 0; i < maxAttempts; i++) {
-      const statusRes = await fetch(`/api/v1/labs/${pluginId}/status/${taskId}`)
-      const statusData = await statusRes.json()
-      taskStatus.value = statusData.status ?? 'unknown'
-      if (taskStatus.value === 'completed' || taskStatus.value === 'failed') {
-        const reportRes = await fetch(`/api/v1/labs/${pluginId}/report/${taskId}`)
-        taskReport.value = await reportRes.json()
-        return
-      }
-      await new Promise((r) => setTimeout(r, 200))
+  function stopPoll() {
+    if (pollTimer) {
+      clearInterval(pollTimer)
+      pollTimer = null
     }
   }
 
-  async function runSimulate(userPrompt: string, params: Record<string, unknown>) {
+  function startPoll(taskId: string) {
+    stopPoll()
+    taskStatus.value = 'pending'
+    pollTimer = setInterval(async () => {
+      try {
+        const statusRes = await fetch(`/api/v1/labs/${pluginId}/status/${taskId}`)
+        const statusData = await statusRes.json()
+        taskStatus.value = (statusData.status as string) ?? 'unknown'
+        if (taskStatus.value === 'completed' || taskStatus.value === 'failed') {
+          stopPoll()
+          const reportRes = await fetch(`/api/v1/labs/${pluginId}/report/${taskId}`)
+          taskReport.value = await reportRes.json()
+        }
+      } catch {
+        /* ignore transient poll errors */
+      }
+    }, pollIntervalMs)
+  }
+
+  async function runSimulate(
+    userPrompt: string,
+    params: Record<string, unknown>,
+    options?: { taskType?: string },
+  ) {
     loading.value = true
     error.value = ''
     result.value = null
     taskStatus.value = ''
     taskReport.value = null
+    stopPoll()
     try {
+      const body: Record<string, unknown> = {
+        user_prompt: userPrompt,
+        params,
+        allowed_chain_ids: defaultChainIds,
+      }
+      if (options?.taskType) body.task_type = options.taskType
+
       const res = await fetch(`/api/v1/labs/${pluginId}/simulate`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_prompt: userPrompt,
-          params,
-          allowed_chain_ids: defaultChainIds,
-        }),
+        headers: { 'Content-Type: application/json' },
+        body: JSON.stringify(body),
       })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || res.statusText)
+      const data = (await res.json()) as SimulateResult
+      if (!res.ok) throw new Error((data as { error?: string }).error || res.statusText)
       result.value = data
-      const evalBlock = typeof data.evaluation === 'string' ? JSON.parse(data.evaluation) : data.evaluation
-      if (evalBlock && !evalBlock.compliance_passed) {
-        throw new Error(evalBlock.rejection_reason || 'compliance check failed')
+      const evaluation = parseEvaluation(data.evaluation)
+      if (evaluation && evaluation.compliance_passed === false) {
+        throw new Error(evaluation.rejection_reason || 'compliance check failed')
       }
       const taskId = data.task?.id
-      if (taskId) await pollTask(taskId)
+      if (taskId) startPoll(taskId)
     } catch (e) {
       error.value = e instanceof Error ? e.message : String(e)
     } finally {
@@ -69,5 +109,7 @@ export function useLabSimulate(pluginId: string, defaultChainIds: (number | stri
     }
   }
 
-  return { loading, error, result, taskStatus, taskReport, runSimulate }
+  onUnmounted(stopPoll)
+
+  return { loading, error, result, taskStatus, taskReport, runSimulate, parseEvaluation }
 }

@@ -3,7 +3,7 @@ kind: PluginPackage
 metadata:
   id: edu.cn.trace.medical
   name: Medical Tamper Detection Lab
-  version: 0.3.0
+  version: 0.4.0
   repo: supervision-trace-edu-suite
   compliance_tier: cn_domain
 

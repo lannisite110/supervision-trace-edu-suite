@@ -8,7 +8,8 @@
 
 ## 1. 目标
 
-> 分阶段深化见 [docs/TRACE_PHASES.md](docs/TRACE_PHASES.md)（规划 v0.4.0，参照 hot-labs Phase 0–4）
+> 分阶段深化见 [docs/TRACE_PHASES.md](docs/TRACE_PHASES.md)（**v0.4.0** ✅）  
+> 学习路线：[docs/TRACE_LEARNING_PATH.md](docs/TRACE_LEARNING_PATH.md)
 
 3 个**国内民生存证教学 Demo**（虚构数据，不对接真实监管/支付/医院 HIS）。
 

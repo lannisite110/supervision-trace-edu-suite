@@ -21,12 +21,16 @@ def evaluate(inp: RuleInput) -> RuleOutput:
         )
 
     campaign_id = inp.params.get("campaign_id", "DEMO-CAMPAIGN-001")
+    entry_count = inp.params.get("entry_count", 2)
+    ledger_hash = str(inp.params.get("ledger_hash", "ledger-merkle-root-demo-9b2c"))
 
     return RuleOutput(
         recommended_template="plugins/charity-ledger/chaincode/charity_ledger.go",
         recommended_language="go",
         audit_hints=fabric_hints([
             f"campaign_id={campaign_id}",
+            f"entry_count={entry_count}",
+            f"ledger_hash={ledger_hash}",
             "simulated_donation_ledger",
             "audit_trail_hash_only",
             "CN_CHARITY_LEDGER_DEMO",
