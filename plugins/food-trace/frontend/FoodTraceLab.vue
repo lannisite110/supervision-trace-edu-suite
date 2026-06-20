@@ -87,6 +87,7 @@ function submit() {
           <li v-for="h in merkleProof.leafHashes" :key="h"><code>{{ h }}</code></li>
         </ul>
         <p class="muted">{{ merkleProof.proofPath.join(' → ') }}</p>
+      </div>
       <div class="card fabric-card">
         <h2>Fabric 沙箱</h2>
         <p><strong>chainId:</strong> <code>{{ fabricSandbox.chainId }}</code></p>
