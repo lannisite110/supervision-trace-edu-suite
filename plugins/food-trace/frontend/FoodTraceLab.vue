@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { useLabSimulate } from '../../frontend/shared/useLabSimulate'
 import { parseHints } from '../../frontend/shared/parseHints'
+import LabAssistDrawer from '@/components/LabAssistDrawer.vue'
 
 const batchId = ref('DEMO-BATCH-001')
 const { loading, error, result, taskStatus, taskReport, runSimulate, parseEvaluation } =
@@ -9,6 +10,11 @@ const { loading, error, result, taskStatus, taskReport, runSimulate, parseEvalua
 
 const evaluation = computed(() => parseEvaluation(result.value?.evaluation))
 const hints = computed(() => parseHints(evaluation.value?.audit_hints))
+
+const assistParams = computed(() => ({
+  batch_id: batchId.value,
+  product_name: '有机蔬菜礼盒',
+}))
 
 const demoTrace = [
   { stage: '采收', origin: '虚构农场A', hash: 'a3f2c1…demo', time: '2026-06-01 08:00' },
@@ -99,6 +105,12 @@ function submit() {
 
     <pre v-if="taskReport" class="result">{{ JSON.stringify(taskReport, null, 2) }}</pre>
     <pre v-else-if="result" class="result">{{ JSON.stringify(result, null, 2) }}</pre>
+
+    <LabAssistDrawer
+      plugin-id="edu.cn.trace.food"
+      :params="assistParams"
+      :audit-hints="evaluation?.audit_hints"
+    />
   </section>
 </template>
 
