@@ -1,8 +1,8 @@
 # 学习路径 · Supervision Trace Edu Suite（子库2）
 
-> **本仓** v0.4.0 · 主库 **≥ v1.0.0** · 3 个国内民生溯源教学插件。
+> **本仓** v0.4.0 · 主库 **v1.1.0** · 3 个国内民生溯源教学插件 · 主库 **阶段 3B**
 
-**完整路线（推荐）** → **[TRACE_LEARNING_PATH.md](TRACE_LEARNING_PATH.md)**
+**完整路线（推荐）** → **[TRACE_LEARNING_PATH.md](TRACE_LEARNING_PATH.md)** · [tutorials/README.md](tutorials/README.md)
 
 | 顺序 | 插件 | 教程 |
 |------|------|------|
